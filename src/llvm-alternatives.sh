@@ -17,7 +17,9 @@
 #                       install/remove default to all when none is given.
 #   -p, --priority NUM  Alternative priority for install. Defaults to the
 #                       version number (e.g. 23, 18). install only.
-#   -d, --detail        Dump every master/slave symlink in the group.
+#   -d, --detail        Dump every master/slave symlink in the group. Usable
+#                       as a standalone command, or as a flag after any other
+#                       command (e.g. install -d -v 23) to dump the result.
 #   -h, --help          Show this help.
 #
 # Environment:
@@ -213,10 +215,14 @@ main() {
     [ -n "$cmd" ] || usage
     shift
 
-    local priority="" specs=() a v
+    local priority="" detail=0 specs=() a v
     while [ $# -gt 0 ]; do
         a="$1"
         case "$a" in
+            -d|--detail)
+                detail=1
+                shift
+                ;;
             -p|--priority)
                 [ -n "${2:-}" ] || error "$a requires an argument"
                 priority="$2"
@@ -263,6 +269,10 @@ main() {
         -h|--help|help) usage ;;
         *) usage ;;
     esac
+
+    if [ "$detail" -eq 1 ]; then
+        do_detail
+    fi
 }
 
 main "$@"
